@@ -16,6 +16,8 @@ public:
    double robotEnergy;
    double initialEnergy;
    double robotDamage;
+   double averageDistance;
+   int iteration;
    bool stuck;
    bool hasTimeRunOut;
 	bool finishLineCrossed;

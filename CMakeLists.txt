@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(arlo_nn_controller)
+project(arlo_cohesion)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -103,7 +103,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES arlo_nn_controller
+#  LIBRARIES arlo_cohesion
    CATKIN_DEPENDS roscpp std_msgs message_runtime
 #  DEPENDS system_lib
 )
@@ -212,9 +212,9 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(arlo_nn_controller src/startServerNode.cpp src/SimulationController.cpp src/SimulationState.cpp src/NeuroControllerDriver.cpp src/ArloDriver.cpp)
-target_link_libraries(arlo_nn_controller ${catkin_LIBRARIES})
-add_dependencies(arlo_nn_controller arlo_nn_controller_generate_messages_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(arlo_cohesion src/startServerNode.cpp src/SimulationController.cpp src/SimulationState.cpp src/NeuroControllerDriver.cpp src/ArloDriver.cpp)
+target_link_libraries(arlo_cohesion ${catkin_LIBRARIES})
+add_dependencies(arlo_cohesion arlo_nn_controller_generate_messages_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #add_executable(listener_arlo_node src/listener.cpp)
 #target_link_libraries(listener_arlo_node ${catkin_LIBRARIES})

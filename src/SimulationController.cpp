@@ -36,13 +36,10 @@ SimulationController::SimulationController(double maxSTime, int tRate) : linear_
    vel_pub_2 = nh_.advertise<geometry_msgs::Twist>("xolo2/cmd_vel", 1);
    vel_pub_3 = nh_.advertise<geometry_msgs::Twist>("xolo3/cmd_vel", 1);
 
-   odom_sub_1 = nh_.subscribe("xolo1/odom", 1000, &SimulationController::checkModelPosition, this);
-   odom_sub_2 = nh_.subscribe("xolo2/odom", 1000, &SimulationController::checkModelPosition, this);
-   odom_sub_3 = nh_.subscribe("xolo3/odom", 1000, &SimulationController::checkModelPosition, this);
 
-   box_sub_ = nh_.subscribe("clock", 1000, &SimulationController::checkSimulationTime, this);
+   clock_sub_ = nh_.subscribe("clock", 1000, &SimulationController::checkSimulationTime, this);
 
-   clock_sub_ = nh_.subscribe("/gazebo/model_states", 1000, &SimulationController::checkBoxPosition, this);
+   box_sub_ = nh_.subscribe("/gazebo/model_states", 1000, &SimulationController::checkRobotsPosition, this);
 
    sonar_l_sub_1 = nh_.subscribe("xolo1/scan_left", 1000, &SimulationController::checkSonarLeftValues1, this);
    sonar_l_sub_2 = nh_.subscribe("xolo2/scan_left", 1000, &SimulationController::checkSonarLeftValues2, this);
@@ -89,7 +86,7 @@ bool SimulationController::evaluateDriver(arlo_nn_controller::EvaluateDriver::Re
    res.dist2go = arloState.distanceToGo;
    res.damage = arloState.robotDamage;
    res.energy = arloState.distanceTravelled;
-   res.boxDistance = arloState.boxDistance;
+   res.boxDistance = arloState.averageDistance;
    return true;
 }
 
@@ -174,7 +171,7 @@ SimulationState SimulationController::startSimulation(ArloDriver *aDriver1, Arlo
    }
 
    cout << "x = " << arloState.position[0] << ", y = " << arloState.position[1] << endl;
-   cout << "d2Go= " << arloState.distanceToGo << endl;
+   cout << "Average Distance= " << arloState.averageDistance << endl;
    cout << "gas= " << arloState.distanceTravelled << endl;
 
    //	res.time = arloState.finishTime;
@@ -304,11 +301,36 @@ double SimulationController::distance(double x1, double y1, double x2, double y2
    return sqrt(sum);
 }
 
-void SimulationController::checkBoxPosition(const gazebo_msgs::ModelStates::ConstPtr &msg)
+void SimulationController::checkRobotsPosition(const gazebo_msgs::ModelStates::ConstPtr &msg)
 {
-   arloState.boxDistance = msg->pose[5].position.x;
+   arloState.iteration++;
+
+   if (arloState.iteration < 500)
+   {
+      // Do nothing
+      return;
+   }
+   arloState.iteration = 0;
+
+   // Get position of the 3 robots
+    double x1 = msg->pose[1].position.x;
+    double y1 = msg->pose[1].position.y;
+    double x2 = msg->pose[2].position.x;
+    double y2 = msg->pose[2].position.y;
+    double x3 = msg->pose[3].position.x;
+    double y3 = msg->pose[3].position.y;
+   // Get the distance between robots
+   // Robot 1 and 2
+   double d1 = sqrt(pow(x2-x1, 2) + pow(y2-y1, 2));
+   // Robot 1 and 3
+   double d2 = sqrt(pow(x3-x1, 2) + pow(y3-y1, 2));
+   // Robot 2 and 3
+   double d3 = sqrt(pow(x3-x2, 2) + pow(y3-y2, 2));
+
+   arloState.averageDistance += (d1 + d2 + d3) /3;
+
    // ROS_INFO("Name: %s", msg->name[5].c_str());
-   if (arloState.boxDistance >= 4)
+   if (x1 >= 12 && x2 >= 12 && x3 >= 12)
    {
       arloState.finishLineCrossed = true;
    }

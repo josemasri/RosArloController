@@ -48,12 +48,13 @@ public:
 	void checkSonarRightValues3(const sensor_msgs::LaserScan::ConstPtr &msg);
 
 	void checkModelPosition(const nav_msgs::Odometry::ConstPtr &msg);
+
 	void checkSimulationTime(const rosgraph_msgs::Clock::ConstPtr &msg);
 	int getNumSensors();
 	int getNumActuators();
 	bool evaluateDriver(arlo_nn_controller::EvaluateDriver::Request &req,
 						arlo_nn_controller::EvaluateDriver::Response &res);
-	void checkBoxPosition(const gazebo_msgs::ModelStates::ConstPtr &msg);
+	void checkRobotsPosition(const gazebo_msgs::ModelStates::ConstPtr &msg);
 
 	private: 
 	double dist2Go(double x, double y);

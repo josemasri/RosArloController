@@ -13,6 +13,7 @@ void SimulationState::resetState() {
    finishTime = 1000.0;
    currentTime = 0.0;
    currentPosition = 0.0;
+   averageDistance = 0;
    boxDistance = 0;
    position[0] = 0;
    position[1] = 0;
